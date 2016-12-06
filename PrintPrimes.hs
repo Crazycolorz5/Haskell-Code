@@ -1,0 +1,1 @@
+s=2:3:5:filter(\n->not.any(\p->mod n p==0).takeWhile(<(n-7))$s)[7..];main=print s
