@@ -1,6 +1,6 @@
 --Stuff I can see having a use commonly that isn't by default in Prelude
 --Crazycolorz5@gmail.com
---Last Updated: 21 October 2016
+--Last Updated: 1 January 2017
 
 --(The thing about me sticking everything in one place is that
 -- I can write a very fast draft/working version of a function,
@@ -24,8 +24,8 @@ primes::(Integral a)=>[a]
 primes = 2:3:5:7:11:13:17:19:filter isPrime [23..]
 
 isPrime::(Integral a)=>a->Bool
-isPrime n = (n > 1) && (not . any (\p->mod n p == 0) . 
-    takeWhile (<= (floor . sqrt. fromIntegral) n) $ primes)
+isPrime n = (n > 1) && (not . any (fmap (==0) (mod n)) .
+    takeWhile (<= (floor . sqrt . fromIntegral) n) $ primes)
     --Concerned about floating point error for the perfect square of very large primes
 
 digitsBase::(Integral a)=>a->a->[a]
@@ -46,7 +46,7 @@ bits::(Integral a)=>a->[a]
 bits = digitsBase 2
 
 digitsToInt::(Integral a)=>[a]->a
-digitsToInt = List.foldl' (\acc->(\digit->acc*10+digit)) 0 
+digitsToInt = List.foldl' (\acc->(\digit->acc*10+digit)) 0
 
 maxList::(Foldable t, Ord a) => t a -> a
 maxList l
@@ -73,7 +73,7 @@ isSorted (x:xs) = (x <= head xs) && isSorted xs
 insertionSort::(Ord a)=>[a]->[a]
 insertionSort [] = []
 insertionSort lst = List.foldl' insertInOrder [] lst
-    where 
+    where
       insertInOrder [] element = [element]
       insertInOrder acc element = if element <= (head acc)
         then element:acc
@@ -94,7 +94,7 @@ quickerSort lst
 insertionSort2::(a->a->Bool)->[a]->[a]
 insertionSort2 _ [] = []
 insertionSort2 rel lst = List.foldl' insertInOrder [] lst
-    where 
+    where
       insertInOrder [] element = [element]
       insertInOrder acc element = if rel element (head acc)
         then element:acc
@@ -123,7 +123,7 @@ countTrue = List.foldl' (\acc->(\e->if e then succ acc else acc)) 0
 
 makeCounts::(Ord a, Foldable t, Integral b) => t a -> Map.Map a b
 makeCounts = foldl addCount Map.empty where
-    addCount acc e = 
+    addCount acc e =
         if Map.member e acc
             then Map.update (Just . succ) e acc
             else Map.insert e 1 acc
@@ -133,4 +133,3 @@ infixl 0 <-$
 
 f <<= m = m >>= f
 infixr 1 <<=
-    
