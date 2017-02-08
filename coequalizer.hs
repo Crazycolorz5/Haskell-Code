@@ -7,13 +7,17 @@ import Data.Maybe (fromJust, isNothing)
 makeCongruenceClasses :: (Eq a, Hashable a) =>  [(a, a)] -> HashMap a Int
 makeCongruenceClasses l = foldl linkOrInsert Map.empty l where
     linkOrInsert hmap (a1, a2) = case Map.lookup a1 hmap of
-                                      Just conclass -> Map.insert a2 conclass hmap
+                                      Just conclass -> case Map.lookup a2 hmap of
+                                                            Just class2 -> if conclass == class2
+                                                                              then hmap
+                                                                              else Map.map (\v-> if v==class2 then conclass else v) hmap-- we need to unify the classes
+                                                            Nothing -> Map.insert a2 conclass hmap
                                       Nothing -> case Map.lookup a2 hmap of
                                                       Just conclass -> Map.insert a1 conclass hmap
-                                                      Nothing -> let rep = size. fromList $ Map.elems hmap in Map.insert a2 rep (Map.insert a1 rep hmap)
+                                                      Nothing -> let rep = (+1) . foldl max 1 . fromList $ Map.elems hmap in Map.insert a2 rep (Map.insert a1 rep hmap)
 --TODO: I could make a congruenceClass with default, the default for an enumerable being its toEnum + the largest representitive of the cclass.                                                      
 relation::[(Int, Int)]
-relation = [(2,1), (3,1), (5,4), (10,11)]
+relation = [(2,1), (3,4), (2,3), (5,6), (10,11)]
 f x = let classes = makeCongruenceClasses relation in Map.lookupDefault (x + foldl max 0 (Map.keys classes)) x $ classes
 --This generalizes to giving unique values to those not specified in the relation. This is a bit lost later --
                                                                      
