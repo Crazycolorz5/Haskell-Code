@@ -13,8 +13,8 @@ makeCongruenceClasses l = foldl linkOrInsert Map.empty l where
                                                       Nothing -> let rep = size. fromList $ Map.elems hmap in Map.insert a2 rep (Map.insert a1 rep hmap)
 --TODO: I could make a congruenceClass with default, the default for an enumerable being its toEnum + the largest representitive of the cclass.                                                      
 relation::[(Int, Int)]
-relation = [(2,1), (3,1), (5,4)]
-f x = let classes = makeCongruenceClasses relation in Map.lookupDefault (x + foldl max 0 (Map.elems classes)) x $ classes
+relation = [(2,1), (3,1), (5,4), (10,11)]
+f x = let classes = makeCongruenceClasses relation in Map.lookupDefault (x + foldl max 0 (Map.keys classes)) x $ classes
 --This generalizes to giving unique values to those not specified in the relation. This is a bit lost later --
                                                                      
 --And note, the congruence classes created this way are ismorphic to a Hashmap a (Set a) by the following isomorphism:
@@ -32,7 +32,7 @@ uncoequalize :: (Eq a, Hashable a) => HashMap a Int -> (Int -> b) -> (a -> b)
 uncoequalize classes psi = let nu = fromJust . flip Map.lookup classes in psi . nu --Note: not an isomorphism
 
 extendOverRelation :: (Eq a, Hashable a) => [(a, a)] -> (a -> Maybe b) -> (a -> b)
-extendOverRelation rel f = let cclasses = makeCongruenceClasses rel in if not . isNothing $ (f a) then fromJust (f a) else (uncoequalize cclasses . coequalize cclasses) f $ a
+extendOverRelation rel f a = let cclasses = makeCongruenceClasses rel in if not . isNothing $ (f a) then fromJust (f a) else (uncoequalize cclasses . coequalize cclasses) f $ a
 --The reason this works is that if f holds for anything in one of the congruence classes, then 
 --eOR f will map to the first (defined value) in any class.
 --If f has conflicting values for various members in the congruence class, behavior is not guaranteed.
