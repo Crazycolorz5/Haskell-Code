@@ -1,6 +1,6 @@
 --Stuff I can see having a use commonly that isn't by default in Prelude
 --Crazycolorz5@gmail.com
---Last Updated: 1 January 2017
+--Last Updated: 24 August 2017
 
 --(The thing about me sticking everything in one place is that
 -- I can write a very fast draft/working version of a function,
@@ -9,7 +9,7 @@
 
 --TODO: TCO things, use foldl' (import)
 
-module MyUsefulFunctions (factorial, primes, isPrime, digitsBase, digits, asBase, bits, digitsToInt, maxList, minList, maxList', minList', isSorted, insertionSort, quickSort, quickerSort, perms, powerSet, cartesianProduct, count, countTrue, makeCounts, (<-$), (<<=)) where
+module MyUsefulFunctions (factorial, primes, isPrime, primeFactor, digitsBase, digits, asBase, bits, digitsToInt, maxList, minList, maxList', minList', isSorted, insertionSort, quickSort, quickerSort, perms, powerSet, cartesianProduct, count, countTrue, makeCounts, (<-$), (<<=)) where
 
 import qualified Data.List as List (foldl1', foldl')
 import qualified Data.Map as Map
@@ -27,6 +27,21 @@ isPrime::(Integral a)=>a->Bool
 isPrime n = (n > 1) && (not . any (fmap (==0) (mod n)) .
     takeWhile (<= (floor . sqrt . fromIntegral) n) $ primes)
     --Concerned about floating point error for the perfect square of very large primes
+
+primeFactor::(Integral a)=>a->[(a, Int)]
+--Postcondition: id = product . map (uncurry (^)) . primeFactor
+primeFactor n = condense $ primeFactor_inner primes n where
+    condense [] = []
+    condense (x:xs) = condense_inner x 1 xs
+    condense_inner e count [] = [(e, count)]
+    condense_inner e count (x:xs) = if x == e then condense_inner e (succ count) xs else (e, count) : condense_inner x 1 xs
+primeFactor_inner (prime:primes) n = if n == 1
+    then []
+    else if mod n prime == 0
+        then prime : primeFactor_inner (prime:primes) (div n prime)
+        else if prime > (floor . sqrt . fromIntegral $ n)
+            then [n]
+            else primeFactor_inner primes n
 
 digitsBase::(Integral a)=>a->a->[a]
 digitsBase b = reverse . digitsBase_helper b
